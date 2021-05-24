@@ -1,0 +1,49 @@
+{
+    "environment": {
+        "max iterations": 1000,
+        "signal": "residual"
+    },
+    "geometry": {
+        "grid size": 96,
+        "PML Size": 8,
+        "sigma max": 2
+    },
+    "medium": {
+        "c0": 1,
+        "train_set": "datasets/splitted_96/trainset.ph",
+        "validation_set": "datasets/splitted_96/validation.ph"
+    },
+    "neural_network": {
+        "architecture": "custom_unet",
+        "activation function": "prelu",
+        "channels per layer": 8,
+        "depth": 4,
+        "states depth": 4,
+        "state channels": 2
+    },
+    "source": {
+        "amplitude": 10,
+        "location": [
+            82,
+            48
+        ],
+        "omega": 1,
+        "phase": 0,
+        "smoothing": false
+    },
+    "training": {
+        "buffer size": 100,
+        "gradient clipping": 1,
+        "initial state loss": 0,
+        "learning rate": 0.001,
+        "minimum learning rate": 0.001,
+        "loss": "mse",
+        "loss amplify": 100,
+        "momentum": 0.9,
+        "noise level": 0.0,
+        "optimizer": "adam",
+        "test batch size": 128,
+        "train batch size": 32,
+        "weight_decay": 1e-6
+    }
+}
