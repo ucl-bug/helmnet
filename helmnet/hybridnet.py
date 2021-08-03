@@ -298,7 +298,7 @@ class IterativeSolver(pl.LightningModule):
             # Get loss
             loss = self.loss_function(output["residuals"][-1]).sqrt()
             # NaNs to Infs, due to Lightning bug: https://github.com/PyTorchLightning/pytorch-lightning/issues/2636
-            loss[torch.isnan(loss)] = torch.isnan(loss).float() * float("inf")
+            loss[torch.isnan(loss)] = float("inf")
         sample_wavefield = (hardtanh(output["wavefields"][0][0]) + 1) / 2
         return {
             "loss": loss,
