@@ -427,7 +427,7 @@ class IterativeSolver(pl.LightningModule):
 
             # Log it as wavefield at 20 steps
             if not middle_logged and new_timesteps == 20:
-                log_wavefield(wavefields[iteration][sample_idx], "20")
+                self.log_wavefield(wavefields[iteration][sample_idx], "20")
                 with torch.no_grad():
                     middle_loss = self.loss_function(residuals[iteration][sample_idx])
                     self.logger.experiment.add_scalar(
@@ -439,7 +439,7 @@ class IterativeSolver(pl.LightningModule):
 
             # Log terminal wavefield
             elif new_timesteps >= maxiter and not terminal_logged:
-                log_wavefield(wavefields[iteration][sample_idx], "terminal")
+                self.log_wavefield(wavefields[iteration][sample_idx], "terminal")
                 with torch.no_grad():
                     terminal_loss = self.loss_function(residuals[iteration][sample_idx])
                     self.logger.experiment.add_scalar(
