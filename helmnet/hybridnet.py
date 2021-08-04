@@ -257,7 +257,7 @@ class IterativeSolver(pl.LightningModule):
 
     def loss_function(self, x):
         if self.hparams.loss == "mse":
-            return x.pow(2).mean((1, 2, 3))
+            return x.pow(2).mean()
         else:
             raise NotImplementedError(
                 "The loss function {} is not implemented".format(self.hparams.loss)
