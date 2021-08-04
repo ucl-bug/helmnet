@@ -554,7 +554,7 @@ class IterativeSolver(pl.LightningModule):
         for current_iteration in range(num_iterations):
             # Update wavefield and get residual AFTER update
             wavefield, residual = self.single_step(
-                wavefield, k_sq, residual, get_residual=True
+                wavefield, k_sq, residual
             )
 
             #  Store
