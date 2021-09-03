@@ -2,7 +2,7 @@ from numpy import linspace
 import torch
 from torch import nn
 import numpy as np
-
+import torch.fft
 
 @torch.jit.script
 def complex_mul(x, y):
@@ -29,7 +29,6 @@ def conj(x):
         ix = x[..., 1]
     return torch.stack([rx, -ix], dim=-1)
 
-
 @torch.jit.script
 def fast_laplacian_with_pml(u, kx, ky, kx_sq, ky_sq, ax, bx, ay, by):
     """
@@ -37,18 +36,38 @@ def fast_laplacian_with_pml(u, kx, ky, kx_sq, ky_sq, ax, bx, ay, by):
     """
     # TODO: redo this function before 9pm
     # Make 2d fourier transform of signal
-    u_fft = torch.fft(u, signal_ndim=2, normalized=False)
+
+    #u_fft = torch.fft(u, signal_ndim=2, normalized=False)
+    #since 1.6 the fft is a module with different API
+    u_fft = torch.view_as_real(
+        torch.fft.fftn(
+            torch.view_as_complex(u), 
+            dim = (-2, -1), 
+            norm = "backward"
+        )
+    )
 
     # get derivatives
-    dx = complex_mul(u_fft, kx)
-    dy = complex_mul(u_fft, ky)
+    dx  = complex_mul(u_fft, kx)
+    dy  = complex_mul(u_fft, ky)
     ddx = complex_mul(u_fft, kx_sq)
     ddy = complex_mul(u_fft, ky_sq)
-    derivatives = torch.ifft(
-        torch.stack([dx, dy, ddx, ddy], dim=0),
-        signal_ndim=2,
-        normalized=False,
+    # derivatives = torch.ifft(
+    #     torch.stack([dx, dy, ddx, ddy], dim=0),
+    #     signal_ndim=2,
+    #     normalized=False,
+    # )
+    
+    derivatives = torch.view_as_real(
+        torch.fft.ifftn(
+            torch.view_as_complex(
+                torch.stack([dx, dy, ddx, ddy], dim = 0)
+            ), 
+            dim = (-2, -1), 
+            norm = "backward"
+        )
     )
+
     dx = derivatives[0]
     dy = derivatives[1]
     ddx = derivatives[2]
@@ -129,11 +148,17 @@ class FourierDerivative(nn.Module):
 
     def forward(self, x):
         """x must be [batch, x, y, real/imag]"""
-        return torch.ifft(
-            torch.fft(x, signal_ndim=2, normalized=False).flip(dims=[3]).mul(self.k),
-            signal_ndim=2,
-            normalized=False,
-        )
+        return torch.view_as_real(torch.fft.ifftn(
+            torch.view_as_complex(torch.view_as_real(torch.fft.fftn(torch.view_as_complex(x), dim=(-2, -1), norm="backward")).flip(dims=[3]).mul(self.k)),
+            dim=(-2, -1),
+            norm="backward")
+        )   
+   
+        # return torch.ifft(
+        #     torch.fft(x, signal_ndim=2, normalized=False).flip(dims=[3]).mul(self.k),
+        #     signal_ndim=2,
+        #     normalized=False,
+        # )
         x[..., 1] *= -1
         """
         # Move to fourier basis

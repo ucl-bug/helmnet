@@ -19,7 +19,6 @@ Experience = collections.namedtuple(
     ],
 )
 
-
 class ReplayBuffer:
     def __init__(self, capacity: int):
         self.buffer = [None for _ in range(capacity)]
@@ -32,6 +31,8 @@ class ReplayBuffer:
         self.buffer[index] = experience
 
     def sample(self, batch_size: int):
+        if batch_size > self.capacity:
+            batch_size = self.capacity
         indices = np.random.choice(self.capacity, batch_size, replace=False)
 
         wavefields, h_states, k_sqs, residual, source, iterations = zip(
