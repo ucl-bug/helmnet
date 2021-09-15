@@ -1,6 +1,7 @@
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.plugins import DDPPlugin
 import torch
 from helmnet import IterativeSolver, load_settings
 import os
@@ -11,7 +12,7 @@ if __name__ == "__main__":
     # Parsing command line arguments
     parser = ArgumentParser()
     parser.add_argument(
-        "--distributed_backend",
+        "--accelerator",
         type=str,
         default="ddp",
         help="Distributed training backend, see https://pytorch.org/tutorials/intermediate/ddp_tutorial.html.",
@@ -63,6 +64,7 @@ if __name__ == "__main__":
         source_smoothing =          settings["source"]["smoothing"],
         train_data_path =           settings["medium"]["train_set"],
         validation_data_path =      settings["medium"]["validation_set"],
+        test_data_path =            settings["medium"]["test_set"],
         activation_function =       settings["neural_network"]["activation function"],
         depth =                     settings["neural_network"]["depth"],
         features =                  settings["neural_network"]["channels per layer"],
@@ -86,12 +88,15 @@ if __name__ == "__main__":
 
     # parser = pl.Trainer.add_argparse_args(parser)
     args = parser.parse_args()
+    gpu_list = [int(i) for i in args.gpus.split(',')]
 
     # Make trainer
     trainer = pl.Trainer.from_argparse_args(
         args, 
+        gpus        = gpu_list,
         logger      = logger, 
-        callbacks   = [checkpoint_callback]
+        callbacks   = [checkpoint_callback],
+        #plugins     = DDPPlugin(find_unused_parameters = False),   #causes errors when not running ddp
     )
 
     # Train network

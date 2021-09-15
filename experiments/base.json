@@ -11,7 +11,8 @@
     "medium": {
         "c0": 1,
         "train_set": "datasets/splitted_96/trainset.ph",
-        "validation_set": "datasets/splitted_96/validation.ph"
+        "validation_set": "datasets/splitted_96/validation.ph",
+        "test_set": "datasets/splitted_96/testset.ph"
     },
     "neural_network": {
         "architecture": "custom_unet",

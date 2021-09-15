@@ -22,35 +22,34 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 class IterativeSolver(pl.LightningModule):
     def __init__(
         self,
-        domain_size: int,
-        k: float,
-        omega: float,
-        PMLsize: int,
-        sigma_max: float,
-        source_location: list,
-        train_data_path: str,
-        validation_data_path: str,
-        activation_function="relu",
-        architecture="custom_unet",
-        gradient_clip_val=0,
-        batch_size=24,
-        buffer_size=100,
-        depth=4,
-        features=8,
-        learning_rate=1e-4,
-        loss="mse",
-        minimum_learning_rate=1e-4,
-        optimizer="adam",
-        weight_decay=0.0,
-        max_iterations=100,
-        source_amplitude=10,
-        source_phase=0,
-        source_smoothing=False,
-        state_channels=2,
-        state_depth=4,
-        unrolling_steps=10
-        #genetic_chromosome=None,
-        #genetic_nodes_per_stage=5
+        domain_size             : int,
+        k                       : float,
+        omega                   : float,
+        PMLsize                 : int,
+        sigma_max               : float,
+        source_location         : list,
+        train_data_path         : str,
+        validation_data_path    : str,
+        test_data_path          : str,
+        activation_function     : str   = "relu",
+        architecture            : str   = "custom_unet",
+        gradient_clip_val       : int   = 0,
+        batch_size              : int   = 24,
+        buffer_size             : int   = 100,
+        depth                   : int   = 4,
+        features                : int   = 8,
+        learning_rate           : float = 1e-4,
+        loss                    : str   = "mse",
+        minimum_learning_rate   : float = 1e-4,
+        optimizer               : str   = "adam",
+        weight_decay            : float = 0.0,
+        max_iterations          : int   = 100,
+        source_amplitude        : int   = 10,
+        source_phase            : int   = 0,
+        source_smoothing        : bool  = False,
+        state_channels          : int   = 2,
+        state_depth             : int   = 4,
+        unrolling_steps         : int   = 10
     ):
         super().__init__()
 
@@ -90,17 +89,6 @@ class IterativeSolver(pl.LightningModule):
                 state_channels      = self.hparams.state_channels,
                 state_depth         = self.hparams.state_depth,
             )
-        # elif nn_name == "genetic_unet":
-        #     from genetic_search.net.genetic_unet import GeneticUNet
-        #     self.f = GeneticUNet(
-        #         chromosome      = self.hparams.genetic_chromosome,
-        #         nodes_per_stage = self.hparams.genetic_nodes_per_stage,
-        #         depth           = self.hparams.depth,
-        #         domain_size     = self.hparams.domain_size,
-        #         in_channels     = 6,
-        #         state_channels  = self.hparams.state_channels,
-        #         features        = 8
-        #     )
         else:
             raise NotImplementedError("Unknown architecture {}".format(nn_name))
 
@@ -243,7 +231,7 @@ class IterativeSolver(pl.LightningModule):
     def val_dataloader(self):
         # Making dataset of SoS
         self.reset_source()
-        sos_train = get_dataset("datasets/splitted_96/validation.ph")
+        sos_train = get_dataset(self.hparams.validation_data_path)
         # Return the dataloader of sos maps
         return DataLoader(
             sos_train,
@@ -253,7 +241,7 @@ class IterativeSolver(pl.LightningModule):
 
     def test_dataloader(self):
         self.reset_source()
-        testset = get_dataset("datasets/splitted_96/testset.ph")
+        testset = get_dataset(self.hparams.test_data_path)
         # Return the dataloader of sos maps
         return DataLoader(
             testset,
@@ -291,7 +279,7 @@ class IterativeSolver(pl.LightningModule):
                 min_lr=self.hparams.minimum_learning_rate,
                 verbose=True,
             ),
-            "monitor": "train_loss",  # Default: val_loss
+            "monitor": "train_loss_mean",  # Default: val_loss
             "interval": "epoch",
             "frequency": 1,
         }
@@ -313,13 +301,12 @@ class IterativeSolver(pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
         self.reset_source()
-        with torch.no_grad():
-            output = self.forward(
-                batch,
-                num_iterations=self.hparams.max_iterations,
-                return_wavefields=True,
-                return_states=False,
-            )
+        output = self.forward(
+            batch,
+            num_iterations=self.hparams.max_iterations,
+            return_wavefields=True,
+            return_states=False,
+        )
         # Get loss
         losses = [self.test_loss_function(x) for x in output["residuals"]]
         losses = torch.stack(losses, 1)
@@ -350,18 +337,16 @@ class IterativeSolver(pl.LightningModule):
         self.set_multiple_sources(
             [self.get_random_source_loc() for _ in range(batch.shape[0])]
         )
-        with torch.no_grad():
-            output = self.forward(
-                batch,
-                num_iterations=self.hparams.max_iterations,
-                return_wavefields=False,
-                return_states=False,
-            )
-
-            # Get loss
-            loss = self.loss_function(output["residuals"][-1]).sqrt()
-            # NaNs to Infs, due to Lightning bug: https://github.com/PyTorchLightning/pytorch-lightning/issues/2636
-            loss[torch.isnan(loss)] = float("inf")
+        output = self.forward(
+            batch,
+            num_iterations=self.hparams.max_iterations,
+            return_wavefields=False,
+            return_states=False,
+        )
+        # Get loss
+        loss = self.loss_function(output["residuals"][-1]).sqrt()
+        # NaNs to Infs, due to Lightning bug: https://github.com/PyTorchLightning/pytorch-lightning/issues/2636
+        loss[torch.isnan(loss)] = float("inf")
         sample_wavefield = (hardtanh(output["wavefields"][0][0]) + 1) / 2
         return {
             "loss": loss,
@@ -397,7 +382,7 @@ class IterativeSolver(pl.LightningModule):
     def training_epoch_end(self, outputs):
         train_loss_mean = torch.stack([x["loss"] for x in outputs]).mean()
         #training_epoch_end cannot return values anymore
-        self.log('train_loss', train_loss_mean)
+        self.log('train_loss_mean', train_loss_mean)
         #return {"train_loss": train_loss_mean}
 
     def training_step(self, sos_batch, batch_idx):
@@ -506,12 +491,12 @@ class IterativeSolver(pl.LightningModule):
                     terminal_logged = True
 
         self.logger.experiment.add_scalar(
-            "val_loss",
+            "train_loss",
             loss,
             self.trainer.global_step
         )
 
-        self.log('val_loss', loss) # force the variable to be saved in state dict of module. tensorboard logger does not do this for some reason
+        self.log('train_loss', loss) # force the variable to be saved in state dict of module. tensorboard logger does not do this for some reason
 
         #need to log with prog_bar = True to show on progress bar now
         self.log('maxiter',     maxiter, on_epoch=True, prog_bar = True)
