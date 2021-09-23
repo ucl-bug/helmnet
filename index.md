@@ -6,8 +6,18 @@ Transcranial ultrasound therapy is increasingly used for the non-invasive treatm
 
 ## Learned iterative solver
 ---
-An iterative solver updates the current estimate of the wavefield $u$ as 
+Given an invertible linear operator $A$, in our case the Helmholtz operator, and a source term $\rho$, our goal is to find a $u$ such that $Au = \rho$.
+
+The learned iterative solver updates the current estimate of the wavefield $u_k$ as 
 
 $$
 u_{k+1} = u_k + f_\theta(u_k, c, \rho)
 $$
+
+Where $f_\theta$ is a learned function. To leverage the knowledge of the forward operator $A$, the learned function is defined as
+
+$$
+u_{k+1} = u_k + f_\theta(u_k, e_k), \qquad e_k = A(c)u_k - \rho
+$$
+
+The learned solver is implemented as a lightweight UNet, trained by minimizing the residual error.
