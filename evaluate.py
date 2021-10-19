@@ -48,7 +48,7 @@ class Evaluation:
     def get_model(self, domain_size=None, source_location=None):
 
         # Loading model and its hyperparams
-        model = IterativeSolver.load_from_checkpoint(self.path, strict=False)
+        model = IterativeSolver.load_from_checkpoint(self.path, strict=False, test_data_path=None)
         hparams = model.hparams
 
         # Customizing hparams if needed
