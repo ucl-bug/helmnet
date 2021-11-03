@@ -1,13 +1,13 @@
-from evaluate import Evaluation
-from helmnet.support_functions import *
-from matplotlib import pyplot as plt
-import numpy as np
 import os
-from scipy.io import loadmat, savemat
-import torch
+
+import numpy as np
+from matplotlib import pyplot as plt
+from scipy.io import loadmat
 from torchvision.utils import make_grid
-from tqdm import tqdm
-import subprocess
+
+from evaluate import Evaluation
+from helmnet.support_functions import (get_model_errors, get_gmres_errors, last_frame_difference, fig_generic,
+                                       make_skull_example, show_example_abs)
 
 SETTINGS = {
     "gmres_results": "results/gmres_results.mat",
@@ -38,7 +38,7 @@ def load_kwave_and_gmres():
     matfile = loadmat(SETTINGS["gmres_results"])
     gmres_results = matfile["P"]
     gmres_residuals = (
-        matfile["residuals"] / gmres_results.shape[-1]
+            matfile["residuals"] / gmres_results.shape[-1]
     )  # To mimick RMSE used in network
     print("done!")
 
@@ -75,16 +75,16 @@ def fig_samples_from_testset(evaluator, savepath="images/example_skulls"):
 
 
 def fig_error_vs_residual(
-    traces,
-    l_infty_traces,
-    path="images/error_vs_residual",
-    iterations=1000,
-    lines_color="darkgray",
-    lines_alpha=0.1,
-    mean_color="black",
-    xscale="log",
-    yscale="log",
-    dpi=100,
+        traces,
+        l_infty_traces,
+        path="images/error_vs_residual",
+        iterations=1000,
+        lines_color="darkgray",
+        lines_alpha=0.1,
+        mean_color="black",
+        xscale="log",
+        yscale="log",
+        dpi=100,
 ):
     print("Making Error vs Residual figure")
 
@@ -112,18 +112,17 @@ def fig_error_vs_residual(
 
 
 def fig_residual_and_error_traces(
-    traces,
-    l_infty_traces,
-    gmres_traces,
-    l_infty_traces_gmres,
-    path="images/residual_and_l_inf",
-    dpi=100,
-    iterations=1000,
-    lines_alpha=0.05,
-    xscale="linear",
-    yscale="log",
+        traces,
+        l_infty_traces,
+        gmres_traces,
+        l_infty_traces_gmres,
+        path="images/residual_and_l_inf",
+        dpi=100,
+        iterations=1000,
+        lines_alpha=0.05,
+        xscale="linear",
+        yscale="log",
 ):
-
     gmres_x = np.linspace(1, 1000, gmres_traces.shape[1])
 
     w, h = plt.figaspect(1 / 3.0)
@@ -255,10 +254,10 @@ def histograms(l_infty_pytorch, mse_pytorch, l_infty_gmres, mse_gmres, filename=
 
 
 def fig_skull_error_histograms_and_boxplot(
-    pytorch_tensors,
-    gmres_tensors,
-    kwave_results,
-    path="images/distribution_errors_global",
+        pytorch_tensors,
+        gmres_tensors,
+        kwave_results,
+        path="images/distribution_errors_global",
 ):
     l_infty_pytorch, mse_pytorch = last_frame_difference(
         pytorch_tensors[:, :-1], kwave_results
@@ -277,17 +276,17 @@ def fig_skull_error_histograms_and_boxplot(
 
 
 def fig_example(
-    evaluator,
-    sos_map,
-    path,
-    source_location=[82, 48],
-    omega=1,
-    min_sos=1,
-    cfl=0.01,
-    roundtrips=60.0,
-    mode="normal",
-    restart =10,
-    max_iter=1000,
+        evaluator,
+        sos_map,
+        path,
+        source_location=(82, 48),
+        omega=1,
+        min_sos=1,
+        cfl=0.01,
+        roundtrips=60.0,
+        mode="normal",
+        restart=10,
+        max_iter=1000,
 ):
     solver = evaluator.model
     fig_generic(
@@ -303,6 +302,7 @@ def fig_example(
         restart,
         max_iter
     )
+
 
 def fig_skull_example(evaluator, path="images/skull_example"):
     if not os.path.isfile("examples/kwavedata512.mat"):
@@ -342,7 +342,6 @@ def fig_skull_example(evaluator, path="images/skull_example"):
 
 
 if __name__ == "__main__":
-    import matplotlib as mpl
     plt.rcParams.update({
         "text.usetex": True,
         "font.family": "sans-serif",
@@ -440,7 +439,7 @@ if __name__ == "__main__":
         cfl=0.1,
         roundtrips=100,
         mode="large",
-	restart=25,
+        restart=25,
     )
 
     # Skull example
