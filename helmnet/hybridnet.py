@@ -530,7 +530,7 @@ class IterativeSolver(pl.LightningModule):
             sos_maps (tensor): Speed of sound map
 
         Returns:
-            (tensor, tensor, tensor, tensor): state, wavefield, residual, k_sq
+            (tensor, tensor): k_sq, wavefield
         """
         # TODO: Make it trainable?
 
