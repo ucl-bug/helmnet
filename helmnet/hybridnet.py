@@ -1,9 +1,8 @@
 from helmnet.source_module import SourceModule
 import torch
-from torch._C import device
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torch.nn.functional import hardtanh, instance_norm
+from torch.nn.functional import hardtanh
 from random import choice
 import pytorch_lightning as pl
 from torchmetrics.regression import MeanAbsoluteError
@@ -11,8 +10,6 @@ import numpy as np
 from helmnet.architectures import HybridNet
 from helmnet.dataloaders import get_dataset
 from helmnet.spectral import LaplacianWithPML, FastLaplacianWithPML
-from helmnet.utils import log_wavefield
-from helmnet.source import Source
 from helmnet.replaybuffer import ReplayBuffer, Experience
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
