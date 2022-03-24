@@ -1,8 +1,6 @@
 import collections
 import numpy as np
-from torch.utils.data import IterableDataset
 from torch import stack
-import random
 
 # The ReplayBuffer class and Experience object is built on top of this tutorial:
 # https://towardsdatascience.com/en-lightning-reinforcement-learning-a155c217c3de

@@ -1,5 +1,3 @@
-import random
-from matplotlib import pyplot as plt
 from tqdm import trange
 import numpy as np
 import torch

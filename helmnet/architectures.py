@@ -1,16 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from torch.nn.functional import hardtanh
-from random import randint, choice
-import pytorch_lightning as pl
-import numpy as np
-from helmnet.dataloaders import get_dataset
-from helmnet.spectral import LaplacianWithPML
-from helmnet.utils import load_settings, log_wavefield
-from helmnet.source import Source
-from helmnet.replaybuffer import ReplayBuffer, Experience
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 def getActivationFunction(
