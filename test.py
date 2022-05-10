@@ -2,11 +2,10 @@ from helmnet import IterativeSolver, load_settings
 from helmnet.support_functions import fig_generic
 import numpy as np
 
-def sample_prediction(use_cuda: bool = False) :
-    settings = load_settings("experiments/base.json")
+def sample_prediction(use_cuda: bool = False):
 
     solver = IterativeSolver.load_from_checkpoint(
-        checkpoint_path="checkpoints/trained_weights.ckpt", strict=False, test_data_path=settings["medium"]["test_set"]
+        checkpoint_path="checkpoints/trained_weights.ckpt", strict=False, test_data_path=None
     )
     solver.freeze()  # To evaluate the model without changing it
 
