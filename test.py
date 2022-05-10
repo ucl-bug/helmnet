@@ -2,7 +2,7 @@ from helmnet import IterativeSolver, load_settings
 from helmnet.support_functions import fig_generic
 import numpy as np
 
-def sample_prediction(useCuda: bool = False) :
+def sample_prediction(use_cuda: bool = False) :
     settings = load_settings("experiments/base.json")
 
     solver = IterativeSolver.load_from_checkpoint(
@@ -10,7 +10,7 @@ def sample_prediction(useCuda: bool = False) :
     )
     solver.freeze()  # To evaluate the model without changing it
 
-    if useCuda:
+    if use_cuda:
         solver.to("cuda:0")
 
     # Setup problem
