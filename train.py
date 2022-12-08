@@ -72,6 +72,7 @@ if __name__ == "__main__":
         state_channels =            settings["neural_network"]["state channels"],
         state_depth =               settings["neural_network"]["states depth"],
         weight_decay =              settings["training"]["weight_decay"],
+        buffer_size=                settings["training"]["buffer size"]
     )
 
     # Create trainer
