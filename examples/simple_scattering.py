@@ -28,7 +28,6 @@ source_map[0, 30, 120:130] = 1
 # this is the real and imaginary components.
 sos_map_tensor = (torch.tensor(sos_map).unsqueeze(0).unsqueeze(0).to(solver.device)).float()
 source_map_tensor = (torch.tensor(source_map).unsqueeze(0).to(solver.device)).float()
-print("Sos tensor shape: ", sos_map_tensor.size())
 
 # Set model domain size and source.
 # To use [x, y] position, instead use source_location=source_location.
@@ -39,7 +38,6 @@ with torch.no_grad():
 
     # Run model with 100 iterations.
     output = solver.forward(sos_map_tensor, num_iterations=100)
-    print(type(output))
 
     # The output wavefield is indexed as (iteration index, batch index, real/imaginary, Nx, Ny).
     # In this case, the size is (1, 1, 2, 256, 256), and we take just the real part.
