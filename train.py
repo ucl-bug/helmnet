@@ -35,6 +35,12 @@ if __name__ == "__main__":
         default=1000,
         help="Number of total epochs for training.",
     )
+    parser.add_argument(
+        "--parameters",
+        type=str,
+        default="experiments/base.json",
+        help="Path to json file setting parameters for training.",
+    )
     parser.add_argument("--track_arg_norm",             type=bool,  default=True)
     parser.add_argument("--terminate_on_nan",           type=bool,  default=True)
     parser.add_argument("--check_val_every_n_epoch",    type=int,   default=2)
@@ -42,8 +48,11 @@ if __name__ == "__main__":
     parser.add_argument("--num_sanity_val_steps",       type=int,   default=1)
     parser.add_argument("--benchmark",                  type=bool,  default=True)
 
+    # Parse input arguments
+    args = parser.parse_args()
+
     # Loading setings file
-    settings = load_settings("experiments/base.json")
+    settings = load_settings(args.parameters)
 
     # Making model
     solver = IterativeSolver(
@@ -72,6 +81,7 @@ if __name__ == "__main__":
         state_channels =            settings["neural_network"]["state channels"],
         state_depth =               settings["neural_network"]["states depth"],
         weight_decay =              settings["training"]["weight_decay"],
+        buffer_size=                settings["training"]["buffer size"]
     )
 
     # Create trainer
@@ -87,7 +97,6 @@ if __name__ == "__main__":
     )
 
     # parser = pl.Trainer.add_argparse_args(parser)
-    args = parser.parse_args()
     gpu_list = [int(i) for i in args.gpus.split(',')]
 
     # Make trainer

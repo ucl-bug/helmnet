@@ -33,11 +33,11 @@
         "smoothing": false
     },
     "training": {
-        "buffer size": 100,
+        "buffer size": 600,
         "gradient clipping": 1,
         "initial state loss": 0,
-        "learning rate": 0.001,
-        "minimum learning rate": 0.001,
+        "learning rate": 0.0001,
+        "minimum learning rate": 0.00001,
         "loss": "mse",
         "loss amplify": 100,
         "momentum": 0.9,
