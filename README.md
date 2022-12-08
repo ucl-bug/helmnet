@@ -31,7 +31,7 @@ pip install -e .
 To retrain the network, first generate the training data by running `generate_dataset.py`. Delete or rename the `last.ckpt` file from the `checkpoints` folder, and then train the network using the following syntax:
 
 ```python
-python train.py --gpus 2
+python train.py --gpus 0,1
 ```
 
 where the number of GPUs can be specified. You can visualize the training status in tensorboard, using
