@@ -20,8 +20,30 @@ To install the package use
 pip install .
 ```
 
-### Datasets
-The dataset used in the paper can be downloaded [from this Google Drive link](https://drive.google.com/file/d/1H8wbS4D0WAGIRoj3SSlmarl_C3N0ZTNz/view?usp=sharing). The downloaded zip file needs to be extracted in the root folder of the repository. This dataset only have speed of sound maps in it.
+If you want to install in editable mode, use
+
+```bash
+pip install -e .
+```
+
+# Training
+
+To retrain the network, first generate the training data by running `generate_dataset.py`. Delete or rename the `last.ckpt` file from the `checkpoints` folder, and then train the network using the following syntax:
+
+```python
+python train.py --gpus 2
+```
+
+where the number of GPUs can be specified. You can visualize the training status in tensorboard, using
+
+```python
+tensorboard --logdir logs/
+```
+
+And open `http://localhost:6006/` on a browser.
+
+### Pre-generated datasets
+The exact dataset used in the paper can be downloaded [from this Google Drive link](https://drive.google.com/file/d/1H8wbS4D0WAGIRoj3SSlmarl_C3N0ZTNz/view?usp=sharing). The downloaded zip file needs to be extracted in the root folder of the repository. This dataset only have speed of sound maps in it.
 
 For supervised learning, another dataset with pre-computed wavefields and denser sampling can be downloaded [from this repository from Son Hai Nguyen](https://sc-nas.fit.vutbr.cz:10443/xnguye16/ssw-dataset).
 
