@@ -32,7 +32,7 @@ class IterativeSolver(pl.LightningModule):
         architecture            : str   = "custom_unet",
         gradient_clip_val       : int   = 0,
         batch_size              : int   = 24,
-        buffer_size             : int   = 100,
+        buffer_size             : int   = 1000,
         depth                   : int   = 4,
         features                : int   = 8,
         learning_rate           : float = 1e-4,
@@ -124,8 +124,8 @@ class IterativeSolver(pl.LightningModule):
         )#.to(self.device)      #by the time of initialization the self.device variable is still cpu
 
         sigmax, sigmay = self.Lap.sigmas()
-        sigmax = sigmax.clone().detach()#.to(self.device) #torch.tensor(sigmax, device=self.device) 
-        sigmay = sigmay.clone().detach()#.to(self.device) #torch.tensor(sigmay, device=self.device)
+        sigmax = sigmax.clone().detach().to(self.device) #torch.tensor(sigmax, device=self.device)
+        sigmay = sigmay.clone().detach().to(self.device) #torch.tensor(sigmay, device=self.device)
         sigmax = sigmax.unsqueeze(0)
         sigmay = sigmay.unsqueeze(0)
         self.sigmas = torch.cat([sigmax, sigmay]).float()   # buffer will be moved together with the module
