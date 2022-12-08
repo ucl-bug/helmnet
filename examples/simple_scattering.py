@@ -4,7 +4,7 @@ import torch
 from matplotlib import pyplot as plt
 
 # Setup the solver, loading the pre-trained weights.
-solver = IterativeSolver.load_from_checkpoint("checkpoints/trained_weights.ckpt", strict=False, test_data_path=None)
+solver = IterativeSolver.load_from_checkpoint("trained_models/jcp_paper_trained_weights.ckpt", strict=False, test_data_path=None)
 
 # Freeze the model to speed it up, as we are not changing it.
 solver.freeze()

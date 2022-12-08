@@ -56,7 +56,7 @@ import numpy as np
 import torch
 
 solver = IterativeSolver.load_from_checkpoint(
-    "checkpoints/trained_weights.ckpt", strict=False, test_data_path=None
+    "trained_models/jcp_paper_trained_weights.ckpt", strict=False, test_data_path=None
 )
 solver.freeze()  # To evaluate the model without changing it
 solver.to("cuda:0")
